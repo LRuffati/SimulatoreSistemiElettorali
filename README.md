@@ -27,5 +27,5 @@ src.run_simulation("/path/to/folder")
 
 ## Esempio
 
-`ExampleDeliveri` contiene la configurazione per simulare le elezioni europee in Italia
+`ExampleDelivery` contiene la configurazione per simulare le elezioni europee in Italia
 del 2019 

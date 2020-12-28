@@ -28,22 +28,42 @@ class ActHub:
         self.assigned_seats = {}
 
     def run_exec(self):
+        """
+        Execute the simulation based on the provided priority number, lanes
+        with same priority are resolved concurrently
+
+        For each lane:
+            1. Get all instances of the lane_head
+            2. Run exec_lane on each of these and collect the resulting
+                instructions in a flat list
+
+        For each priority level:
+            3. For each instruction collect the proposed names in a set
+            4. Iterate over the extendable iterator of candidates who
+                received a proposal for a seat, if they received more than
+                one extend the iterator with the second choices as returned
+                by the candidate
+        """
         orders = sorted(self.lanes.keys())
         for i in orders:
             ret = []
             for l_n, h_c in self.lanes[i]:
+                # -- 1
                 instances = self.get_instances(h_c)
                 instances = [self.get_instance(h_c, n_i) for n_i in instances]
+                # -- 2
                 ret.extend([instruction for inst in instances for instruction in inst.exec_lane(l_n)])
 
+            # -- 3
             prop_nomi = set()
             for district, name_lista, elector, seats in ret:
                 self.electors.append((district, name_lista, elector, seats))
                 p = self.get_instance("PolEnt", elector)
                 for name in p.elect(name_lista, district, seats):
                     prop_nomi.add(name)
-            iter_nomi = ExtendableIterator(prop_nomi)
 
+            # -- 4
+            iter_nomi = ExtendableIterator(prop_nomi)
             for i in iter_nomi:
                 c = self.get_instance("PolEnt", i)
                 info, next = c.pick()
@@ -56,7 +76,6 @@ class ActHub:
         """
 
         """
-
 
     def add_lane_tail(self, lane_name, class_name):
         self.lane_tails[lane_name] = class_name
